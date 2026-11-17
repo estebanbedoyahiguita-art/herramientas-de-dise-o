@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <title>Carrito - Happy Pets</title>
+</head>
+<body data-pagina="carrito" style="background: #f9fafb;">
+
+  <header id="menu"></header>
+
+  <main class="contenedor" id="pagina-carrito">
+    <h1 style="color: #60b5ff; padding-top: 30px;">Tu Carrito</h1>
+
+    <!-- Se muestra cuando no hay productos -->
+    <div id="carrito-vacio">
+      <p>Tu carrito está vacío</p>
+      <a href="tienda.html" class="btn btn-azul">Ir a la tienda</a>
+    </div>
+
+    <!-- Se muestra cuando hay productos -->
+    <div class="carrito-grid" id="carrito-lleno">
+      <div id="lista-carrito"></div>
+      <div class="resumen">
+        <h2>Resumen</h2>
+        <div id="resumen-lineas"></div>
+        <button id="finalizar" class="btn btn-naranja">Finalizar compra</button>
+        <a href="tienda.html" class="seguir">Seguir comprando</a>
+      </div>
+    </div>
+  </main>
+
+  <footer id="pie"></footer>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="js/datos.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>
