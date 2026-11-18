@@ -402,16 +402,19 @@ a {
 }
 
 .btn-agregar {
-  background: #60b5ff;
-  border: none;
+  background: white;
+  border: 1.5px solid #afddff;
   border-radius: 8px;
   padding: 8px 12px;
   font-size: 18px;
   cursor: pointer;
+  transition: 0.2s;
 }
 
 .btn-agregar:hover {
   transform: scale(1.1);
+  background: #eaf6ff;
+  border-color: #60b5ff;
 }
 
 .btn-agregar:disabled {
