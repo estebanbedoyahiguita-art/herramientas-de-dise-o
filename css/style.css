@@ -95,11 +95,15 @@ a {
   color: #60b5ff;
 }
 
-.logo-icono {
-  background: #ff9149;
-  border-radius: 8px;
-  padding: 2px 6px;
-  font-size: 18px;
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-imagen {
+  height: 44px;
+  width: auto;
 }
 
 .enlaces a {

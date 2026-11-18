@@ -108,7 +108,7 @@ function calcularEnvio(subtotal) {
 function pintarMenu() {
   var html = "";
   html += '<div class="contenedor menu-barra">';
-  html += '  <a href="#/inicio" class="logo"><span class="logo-icono">🐾</span> Happy Pets</a>';
+  html += '  <a href="#/inicio" class="logo"><img src="img/logo.jpg" alt="Logo Happy Pets" class="logo-imagen"> Happy Pets</a>';
   html += '  <nav id="enlaces" class="enlaces">';
   // data-vista: con esto sabemos qué enlace marcar como "activo" (ver marcarMenu)
   html += '    <a href="#/inicio" data-vista="inicio">Inicio</a>';
