@@ -7,90 +7,171 @@
   <link rel="stylesheet" href="css/style.css">
   <title>Happy Pets - Todo para tu mejor amigo</title>
 </head>
-<body data-pagina="inicio">
+<body>
 
+  <!-- Partes fijas: el menú y el pie NO cambian al navegar -->
   <header id="menu"></header>
 
-  <!-- Portada -->
-  <section class="hero">
-    <div class="contenedor hero-grid">
-      <div>
-        <span class="hero-etiqueta">🐾 La alimentación que tu peludo merece</span>
-        <h1>Todo para tu <span>mejor amigo</span></h1>
-        <p>Productos premium seleccionados con amor para el bienestar de tu mascota. Envíos rápidos a domicilio.</p>
-        <div class="hero-botones">
-          <a href="tienda.html" class="btn btn-naranja">Ver tienda</a>
-          <a href="#categorias" class="btn btn-blanco">Categorías</a>
-        </div>
-      </div>
-      <div class="hero-imagen">
-        <div class="hero-circulo">🐕</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Franja de confianza -->
-  <section class="confianza">
-    <div class="contenedor">
-      <span>✔ Pago 100% seguro</span>
-      <span>✔ Productos garantizados</span>
-      <span>✔ Atención personalizada</span>
-    </div>
-  </section>
-
-  <!-- Categorías -->
-  <section class="seccion" id="categorias">
-    <div class="contenedor">
-      <div class="titulo-seccion">
-        <h2>Explora por categoría</h2>
-        <p>Encuentra exactamente lo que tu mascota necesita</p>
-      </div>
-      <div class="grid-categorias" id="lista-categorias"></div>
-    </div>
-  </section>
-
-  <!-- Productos destacados -->
-  <section class="seccion fondo-gris">
-    <div class="contenedor">
-      <div class="titulo-seccion">
-        <h2>Productos destacados</h2>
-        <p>Lo mejor para tu mascota</p>
-      </div>
-      <div class="grid-productos" id="lista-destacados"></div>
-    </div>
-  </section>
-
-  <!-- Estadísticas -->
-  <section class="estadisticas">
-    <div class="contenedor">
-      <div><h3>1.200+</h3><p>Clientes felices</p></div>
-      <div><h3>4.9 ★</h3><p>Calificación</p></div>
-      <div><h3>100%</h3><p>Natural</p></div>
-      <div><h3>24-72 h</h3><p>Entrega rápida</p></div>
-    </div>
-  </section>
-
-  <!-- Más vendidos -->
-  <section class="seccion">
-    <div class="contenedor">
-      <div class="titulo-seccion">
-        <h2>Más vendidos</h2>
-        <p>Los favoritos de nuestros clientes</p>
-      </div>
-      <div class="grid-productos" id="lista-vendidos"></div>
-      <div class="ver-todos"><a href="tienda.html">Ver todos los productos →</a></div>
-    </div>
-  </section>
-
-  <!-- Llamado final -->
-  <section class="final">
-    <span style="font-size: 60px;">🐶</span>
-    <h2>Comienza hoy a darle lo mejor a tu mascota</h2>
-    <p>Recibe tus productos en la puerta de tu casa.</p>
-    <a href="tienda.html" class="btn btn-naranja">Comprar ahora</a>
-  </section>
+  <!-- ZONA CENTRAL: aquí jQuery pinta la vista que toque (inicio, tienda, producto o carrito)
+       sin recargar la página. Ver la función navegar() en js/script.js -->
+  <main id="vista"></main>
 
   <footer id="pie"></footer>
+
+  <!--
+    ===== PLANTILLAS =====
+    Una etiqueta <template> guarda HTML que el navegador NO muestra.
+    jQuery copia su contenido a #vista cuando se necesita:
+      $("#vista").html( $("#plantilla-inicio").html() );
+  -->
+
+  <!-- Vista: INICIO -->
+  <template id="plantilla-inicio">
+    <!-- Portada -->
+    <section class="hero">
+      <div class="contenedor hero-grid">
+        <div>
+          <span class="hero-etiqueta">🐾 La alimentación que tu peludo merece</span>
+          <h1>Todo para tu <span>mejor amigo</span></h1>
+          <p>Productos premium seleccionados con amor para el bienestar de tu mascota. Envíos rápidos a domicilio.</p>
+          <div class="hero-botones">
+            <a href="#/tienda" class="btn btn-naranja">Ver tienda</a>
+            <!-- data-bajar: a dónde hacer scroll animado (ver evento "[data-bajar]") -->
+            <button class="btn btn-blanco" data-bajar="#categorias">Categorías</button>
+          </div>
+        </div>
+        <div class="hero-imagen">
+          <div class="hero-circulo">🐕</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Franja de confianza -->
+    <section class="confianza">
+      <div class="contenedor">
+        <span>✔ Pago 100% seguro</span>
+        <span>✔ Productos garantizados</span>
+        <span>✔ Atención personalizada</span>
+      </div>
+    </section>
+
+    <!-- Categorías: al tocar una, la grilla de abajo se filtra AQUÍ MISMO -->
+    <section class="seccion" id="categorias">
+      <div class="contenedor">
+        <div class="titulo-seccion">
+          <h2>Explora por categoría</h2>
+          <p>Toca una categoría y mira sus productos aquí mismo</p>
+        </div>
+        <div class="grid-categorias" id="lista-categorias"></div>
+      </div>
+    </section>
+
+    <!-- Productos (cambia según la categoría elegida) -->
+    <section class="seccion fondo-gris" id="seccion-productos">
+      <div class="contenedor">
+        <div class="titulo-seccion">
+          <h2 id="titulo-productos">Productos destacados</h2>
+          <p id="subtitulo-productos">Lo mejor para tu mascota</p>
+        </div>
+        <div class="grid-productos" id="lista-inicio"></div>
+        <div class="ver-todos"><a href="#/tienda" id="ver-categoria">Ver todos los productos →</a></div>
+      </div>
+    </section>
+
+    <!-- Estadísticas -->
+    <section class="estadisticas">
+      <div class="contenedor">
+        <div><h3>1.200+</h3><p>Clientes felices</p></div>
+        <div><h3>4.9 ★</h3><p>Calificación</p></div>
+        <div><h3>100%</h3><p>Natural</p></div>
+        <div><h3>24-72 h</h3><p>Entrega rápida</p></div>
+      </div>
+    </section>
+
+    <!-- Más vendidos -->
+    <section class="seccion">
+      <div class="contenedor">
+        <div class="titulo-seccion">
+          <h2>Más vendidos</h2>
+          <p>Los favoritos de nuestros clientes</p>
+        </div>
+        <div class="grid-productos" id="lista-vendidos"></div>
+      </div>
+    </section>
+
+    <!-- Llamado final -->
+    <section class="final">
+      <span style="font-size: 60px;">🐶</span>
+      <h2>Comienza hoy a darle lo mejor a tu mascota</h2>
+      <p>Recibe tus productos en la puerta de tu casa.</p>
+      <a href="#/tienda" class="btn btn-naranja">Comprar ahora</a>
+    </section>
+  </template>
+
+  <!-- Vista: TIENDA -->
+  <template id="plantilla-tienda">
+    <div class="encabezado">
+      <div class="contenedor">
+        <h1>Nuestra Tienda</h1>
+        <p>Encuentra todo lo que tu mascota necesita</p>
+      </div>
+    </div>
+
+    <div class="tienda-grid">
+      <!-- Filtros -->
+      <aside class="filtros">
+        <h3>Filtros</h3>
+        <h4>Categorías</h4>
+        <div id="filtro-categorias"></div>
+
+        <h4>Disponibilidad</h4>
+        <label><input type="checkbox" id="solo-disponibles" checked> Solo disponibles</label>
+
+        <h4>Ordenar por</h4>
+        <select id="orden">
+          <option value="nombre">Nombre A-Z</option>
+          <option value="precio-menor">Precio: menor a mayor</option>
+          <option value="precio-mayor">Precio: mayor a menor</option>
+        </select>
+      </aside>
+
+      <!-- Productos -->
+      <section>
+        <p id="cantidad-resultados"></p>
+        <div id="lista-productos"></div>
+        <div id="sin-resultados">
+          <p style="font-size: 18px;">😕 No se encontraron productos</p>
+        </div>
+      </section>
+    </div>
+  </template>
+
+  <!-- Vista: CARRITO -->
+  <template id="plantilla-carrito">
+    <div class="contenedor" id="pagina-carrito">
+      <h1 style="color: #60b5ff; padding-top: 30px;">Tu Carrito</h1>
+
+      <!-- Se muestra cuando no hay productos -->
+      <div id="carrito-vacio">
+        <p>Tu carrito está vacío</p>
+        <a href="#/tienda" class="btn btn-azul">Ir a la tienda</a>
+      </div>
+
+      <!-- Se muestra cuando hay productos -->
+      <div class="carrito-grid" id="carrito-lleno">
+        <div id="lista-carrito"></div>
+        <div class="resumen">
+          <h2>Resumen</h2>
+          <div id="resumen-lineas"></div>
+          <button id="finalizar" class="btn btn-naranja">Finalizar compra</button>
+          <a href="#/tienda" class="seguir">Seguir comprando</a>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- La vista de PRODUCTO no tiene plantilla: se arma entera en JavaScript
+       porque todo su contenido depende del producto (ver vistaProducto()) -->
 
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="js/datos.js"></script>

@@ -1,22 +1,3 @@
-/*
-  ===== GUÍA RÁPIDA DE jQUERY (lo que usamos en este archivo) =====
-
-  $("...")          -> busca elementos de la página, igual que en CSS:
-                       $("#menu")  busca el elemento con id="menu"
-                       $(".tarjeta") busca los elementos con class="tarjeta"
-                       $("body")   busca la etiqueta <body>
-  .html("...")      -> cambia el contenido HTML de lo que encontró
-  .text("...")      -> cambia solo el texto (o lo lee si va vacío)
-  .val()            -> lee el valor de un input o select
-  .show() / .hide() -> muestra u oculta el elemento
-  .addClass("x")    -> le agrega la clase CSS "x"
-  .removeClass("x") -> le quita la clase CSS "x"
-  .on("evento", f)  -> cuando ocurra el evento (click, change, scroll...) ejecuta la función f
-  .data("nombre")   -> lee un atributo HTML que empieza con data- (ej: data-id="5")
-  $(this)           -> el elemento exacto que recibió el evento (ej: el botón que se hizo click)
-  $(document).ready(f) -> ejecuta f cuando la página terminó de cargar
-*/
-
 // ===============================
 // 1. CARRITO (se guarda en localStorage)
 // ===============================
@@ -41,6 +22,15 @@ function buscarProducto(id) {
   for (var i = 0; i < productos.length; i++) {
     if (productos[i].id == id) {
       return productos[i];
+    }
+  }
+  return null;
+}
+
+function buscarCategoria(id) {
+  for (var i = 0; i < categorias.length; i++) {
+    if (categorias[i].id == id) {
+      return categorias[i];
     }
   }
   return null;
@@ -112,19 +102,18 @@ function calcularEnvio(subtotal) {
 }
 
 // ===============================
-// 2. PARTES COMUNES (menú, pie de página, carrito lateral)
+// 2. PARTES FIJAS (menú, pie, carrito lateral y ventana de vista rápida)
+// Se pintan UNA sola vez al cargar; después solo cambia la zona central.
 // ===============================
 function pintarMenu() {
-  // jQuery: lee el atributo data-pagina del <body> (ej: <body data-pagina="tienda">)
-  // Sirve para saber en qué página estamos y marcar el enlace "activo"
-  var paginaActual = $("body").data("pagina");
   var html = "";
   html += '<div class="contenedor menu-barra">';
-  html += '  <a href="index.html" class="logo"><span class="logo-icono">🐾</span> Happy Pets</a>';
+  html += '  <a href="#/inicio" class="logo"><span class="logo-icono">🐾</span> Happy Pets</a>';
   html += '  <nav id="enlaces" class="enlaces">';
-  html += '    <a href="index.html" class="' + (paginaActual == "inicio" ? "activo" : "") + '">Inicio</a>';
-  html += '    <a href="tienda.html" class="' + (paginaActual == "tienda" ? "activo" : "") + '">Tienda</a>';
-  html += '    <a href="carrito.html" class="' + (paginaActual == "carrito" ? "activo" : "") + '">Carrito</a>';
+  // data-vista: con esto sabemos qué enlace marcar como "activo" (ver marcarMenu)
+  html += '    <a href="#/inicio" data-vista="inicio">Inicio</a>';
+  html += '    <a href="#/tienda" data-vista="tienda">Tienda</a>';
+  html += '    <a href="#/carrito" data-vista="carrito">Carrito</a>';
   html += '  </nav>';
   html += '  <div class="menu-derecha">';
   html += '    <button id="btn-carrito" class="btn-icono">🛒<span id="contador" class="contador">0</span></button>';
@@ -144,8 +133,8 @@ function pintarPie() {
   html += '  </div>';
   html += '  <div>';
   html += '    <h4>Navegación</h4>';
-  html += '    <p><a href="tienda.html">Tienda</a></p>';
-  html += '    <p><a href="carrito.html">Carrito</a></p>';
+  html += '    <p><a href="#/tienda">Tienda</a></p>';
+  html += '    <p><a href="#/carrito">Carrito</a></p>';
   html += '  </div>';
   html += '  <div>';
   html += '    <h4>Contacto</h4>';
@@ -172,8 +161,28 @@ function pintarCarritoLateral() {
   $("body").append(html);
 }
 
+function pintarModal() {
+  // La ventana de "vista rápida". #modal es el fondo oscuro que cubre todo,
+  // y .modal-caja es el recuadro blanco del centro.
+  var html = "";
+  html += '<div id="modal">';
+  html += '  <div class="modal-caja">';
+  html += '    <button id="cerrar-modal" class="btn-icono">✖</button>';
+  html += '    <div id="modal-contenido"></div>';
+  html += '  </div>';
+  html += '</div>';
+  $("body").append(html);
+}
+
+function marcarMenu(vista) {
+  // Primero le quitamos "activo" a todos los enlaces y luego se lo ponemos
+  // solo al que tiene data-vista igual a la vista actual.
+  $("#enlaces a").removeClass("activo");
+  $('#enlaces a[data-vista="' + vista + '"]').addClass("activo");
+}
+
 // ===============================
-// 3. DIBUJAR EL CARRITO (lateral y página carrito)
+// 3. DIBUJAR EL CARRITO (lateral y vista carrito)
 // ===============================
 function filaCarrito(item, pagina) {
   var p = buscarProducto(item.id);
@@ -227,15 +236,15 @@ function refrescarCarrito() {
       items += filaCarrito(carrito[i], false);
     }
     pie += pintarResumen();
-    pie += '<a href="carrito.html" class="btn btn-borde">Ver carrito</a>';
+    pie += '<a href="#/carrito" class="btn btn-borde">Ver carrito</a>';
   }
   // jQuery: llena el carrito lateral con los productos y el resumen
   $("#lateral-items").html(items);
   $("#lateral-pie").html(pie);
 
-  // Página del carrito (solo si existe en la página)
+  // Vista del carrito (solo si es la que se está mostrando)
   // jQuery: .length dice cuántos elementos encontró. Si es 0, ese elemento
-  // no existe en la página actual (por ejemplo, estamos en tienda.html)
+  // no está en pantalla ahora mismo (por ejemplo, estamos en la tienda)
   if ($("#pagina-carrito").length > 0) {
     pintarPaginaCarrito();
   }
@@ -281,8 +290,11 @@ function cerrarCarrito() {
 function tarjetaProducto(p) {
   var html = "";
   html += '<div class="tarjeta reveal">';
-  html += '  <a href="producto.html?id=' + p.id + '" class="tarjeta-imagen">';
+  // La imagen y el título tienen la clase "abrir-rapido": al tocarlos se abre la
+  // vista rápida (ver eventos). El href queda por si alguien abre en otra pestaña.
+  html += '  <a href="#/producto/' + p.id + '" class="tarjeta-imagen abrir-rapido" data-id="' + p.id + '">';
   html += '    <img src="' + p.imagen + '" alt="' + p.nombre + '">';
+  html += '    <span class="ver-rapido">👁 Vista rápida</span>';
   if (p.destacado) {
     html += '    <span class="etiqueta">Destacado</span>';
   }
@@ -291,7 +303,7 @@ function tarjetaProducto(p) {
   }
   html += '  </a>';
   html += '  <div class="tarjeta-cuerpo">';
-  html += '    <h3><a href="producto.html?id=' + p.id + '">' + p.nombre + '</a></h3>';
+  html += '    <h3><a href="#/producto/' + p.id + '" class="abrir-rapido" data-id="' + p.id + '">' + p.nombre + '</a></h3>';
   html += '    <p class="descripcion">' + p.descripcion + '</p>';
   html += '    <div class="tarjeta-pie">';
   html += '      <span class="precio">' + formatoPrecio(p.precio) + '</span>';
@@ -306,43 +318,170 @@ function tarjetaProducto(p) {
   return html;
 }
 
+// Bloque de compra (cantidad + botón agregar). Se usa en la vista rápida y en
+// la vista de producto. Usa CLASES y no ids porque puede haber dos a la vez en
+// pantalla (el detalle del producto y, encima, la vista rápida de otro).
+function bloqueCompra(p) {
+  if (!p.disponible) {
+    return "";
+  }
+  var html = "";
+  html += '<div class="detalle-compra">';
+  html += '  <div class="cantidad">';
+  html += '    <button class="cant-menos">-</button><span class="cant-numero">1</span><button class="cant-mas">+</button>';
+  html += '  </div>';
+  html += '  <button class="btn btn-naranja btn-agregar-detalle" data-id="' + p.id + '">Agregar al carrito</button>';
+  html += '</div>';
+  return html;
+}
+
+function etiquetaEstado(p) {
+  if (p.disponible) {
+    return '<span class="estado ok">Disponible</span>';
+  }
+  return '<span class="estado no">Agotado</span>';
+}
+
 // ===============================
-// 5. PÁGINA DE INICIO
+// 5. VISTA RÁPIDA (ventana que se abre encima, sin salir de donde estás)
 // ===============================
-function paginaInicio() {
-  // Categorías
+function abrirVistaRapida(id) {
+  var p = buscarProducto(id);
+  if (p == null) {
+    return;
+  }
+  var cat = buscarCategoria(p.categoria);
+
+  var html = "";
+  html += '<div class="modal-grid">';
+  html += '  <div class="modal-imagen"><img src="' + p.imagen + '" alt="' + p.nombre + '"></div>';
+  html += '  <div class="modal-info">';
+  if (cat) {
+    html += '    <span class="modal-categoria">' + cat.icono + ' ' + cat.nombre + '</span>';
+  }
+  html += '    <h2>' + p.nombre + '</h2>';
+  html += '    <p class="detalle-precio">' + formatoPrecio(p.precio) + ' ' + etiquetaEstado(p) + '</p>';
+  html += '    <p class="detalle-texto">' + p.descripcion + '</p>';
+  html += bloqueCompra(p);
+  html += '    <a href="#/producto/' + p.id + '" class="ver-detalle">Ver detalle completo →</a>';
+  html += '  </div>';
+  html += '</div>';
+  $("#modal-contenido").html(html);
+
+  // 1) .fadeIn() aparece el fondo oscuro.
+  // 2) Un instante después le ponemos la clase "abierto": en el CSS eso hace que
+  //    el recuadro suba y crezca un poco (transition). Si se pusiera la clase en el
+  //    mismo momento, el navegador no alcanzaría a animarlo.
+  $("#modal").fadeIn(200);
+  setTimeout(function () {
+    $("#modal").addClass("abierto");
+  }, 10);
+  // Mientras la ventana está abierta, la página de atrás no hace scroll
+  $("body").addClass("sin-scroll");
+}
+
+function cerrarVistaRapida() {
+  // jQuery deja encadenar métodos: primero quita la clase (el recuadro baja)
+  // y sobre el mismo elemento hace el fadeOut (el fondo desaparece).
+  $("#modal").removeClass("abierto").fadeOut(200);
+  $("body").removeClass("sin-scroll");
+}
+
+// ===============================
+// 6. VISTA: INICIO (las categorías filtran los productos aquí mismo)
+// ===============================
+function vistaInicio() {
+  // jQuery: copia el contenido de la plantilla <template id="plantilla-inicio">
+  // dentro de la zona central
+  $("#vista").html($("#plantilla-inicio").html());
+
+  // Categorías: ahora son botones (no enlaces) que filtran la grilla de abajo
   var cats = "";
   for (var i = 0; i < categorias.length; i++) {
-    cats += '<a href="tienda.html?categoria=' + categorias[i].id + '" class="categoria reveal">';
+    cats += '<button class="categoria reveal" data-categoria="' + categorias[i].id + '">';
     cats += '<span class="categoria-icono">' + categorias[i].icono + '</span>';
-    cats += '<h3>' + categorias[i].nombre + '</h3></a>';
+    cats += '<h3>' + categorias[i].nombre + '</h3></button>';
   }
-  // jQuery: mete las categorías dentro del <div id="lista-categorias"> de index.html
   $("#lista-categorias").html(cats);
 
-  // Destacados (máximo 4) y más vendidos (máximo 4)
-  var dest = "";
+  // Más vendidos (máximo 4)
   var mas = "";
-  var contDest = 0;
   var contMas = 0;
   for (var j = 0; j < productos.length; j++) {
-    if (productos[j].destacado && contDest < 4) {
-      dest += tarjetaProducto(productos[j]);
-      contDest++;
-    }
     if (productos[j].masVendido && contMas < 4) {
       mas += tarjetaProducto(productos[j]);
       contMas++;
     }
   }
-  $("#lista-destacados").html(dest);
   $("#lista-vendidos").html(mas);
+
+  // Al entrar se ven los destacados (categoría vacía = destacados)
+  pintarProductosInicio("", false);
+}
+
+// Pinta la grilla de productos del inicio.
+// categoria = "" muestra los destacados; si no, los de esa categoría.
+// animar = true hace el efecto de desvanecer y volver a aparecer.
+function pintarProductosInicio(categoria, animar) {
+  var lista = [];
+  for (var i = 0; i < productos.length; i++) {
+    var p = productos[i];
+    if (categoria == "" && p.destacado) {
+      lista.push(p);
+    } else if (categoria != "" && p.categoria == categoria) {
+      lista.push(p);
+    }
+  }
+  // Máximo 8 en el inicio; el resto está en la tienda
+  lista = lista.slice(0, 8);
+
+  var html = "";
+  for (var j = 0; j < lista.length; j++) {
+    html += tarjetaProducto(lista[j]);
+  }
+
+  // Títulos y enlace "ver todos" según la categoría
+  var cat = buscarCategoria(categoria);
+  var titulo = cat ? cat.icono + " " + cat.nombre : "Productos destacados";
+  var subtitulo = cat ? "Lo que tenemos en " + cat.nombre.toLowerCase() : "Lo mejor para tu mascota";
+  var enlace = cat ? "#/tienda/" + cat.id : "#/tienda";
+
+  // Marcar la categoría elegida (la clase "activa" la pinta de azul)
+  $(".categoria").removeClass("activa");
+  if (categoria != "") {
+    $('.categoria[data-categoria="' + categoria + '"]').addClass("activa");
+  }
+
+  function cambiar() {
+    $("#titulo-productos").text(titulo);
+    $("#subtitulo-productos").text(subtitulo);
+    // .attr("href", ...) cambia un atributo HTML del elemento
+    $("#ver-categoria").attr("href", enlace);
+    $("#lista-inicio").html(html);
+    // Las tarjetas nuevas traen la clase "reveal" (invisibles hasta hacer scroll).
+    // Como el usuario ya está mirando esta parte, las mostramos de una vez.
+    // El espacio en el selector significa "los .reveal que están DENTRO de #lista-inicio".
+    $("#lista-inicio .reveal").addClass("visible");
+  }
+
+  if (!animar) {
+    cambiar();
+    return;
+  }
+  // .fadeOut(150, funcion): desaparece en 150 ms y CUANDO TERMINA ejecuta la función.
+  // Ahí cambiamos el contenido y lo hacemos aparecer con .fadeIn().
+  $("#lista-inicio").stop(true, true).fadeOut(150, function () {
+    cambiar();
+    $("#lista-inicio").fadeIn(250);
+  });
 }
 
 // ===============================
-// 6. PÁGINA DE TIENDA (filtros con jQuery)
+// 7. VISTA: TIENDA (filtros con jQuery)
 // ===============================
-function paginaTienda() {
+function vistaTienda(categoriaUrl) {
+  $("#vista").html($("#plantilla-tienda").html());
+
   // Crear los radios de categorías
   var radios = '<label><input type="radio" name="categoria" value="" checked> Todas</label>';
   for (var i = 0; i < categorias.length; i++) {
@@ -350,25 +489,27 @@ function paginaTienda() {
   }
   $("#filtro-categorias").html(radios);
 
-  // Si viene ?categoria=snacks en la dirección, se marca ese radio
-  var params = new URLSearchParams(window.location.search);
-  var categoriaUrl = params.get("categoria");
+  // Si la ruta es #/tienda/snacks, se marca ese radio
   if (categoriaUrl) {
     // jQuery: el selector busca un <input> cuyo name sea "categoria" y cuyo value
-    // sea el de la URL (igual que los selectores de atributo en CSS).
+    // sea el de la ruta (igual que los selectores de atributo en CSS).
     // .prop("checked", true) lo deja marcado.
     $('input[name="categoria"][value="' + categoriaUrl + '"]').prop("checked", true);
   }
 
-  pintarTienda();
+  pintarTienda(false);
 
   // jQuery: .on("change", ...) significa "cuando el usuario CAMBIE este elemento,
-  // ejecuta la función pintarTienda". Con la coma se escogen varios elementos a la vez:
+  // ejecuta la función". Con la coma se escogen varios elementos a la vez:
   // los radios, el checkbox y el select de ordenar.
-  $("#filtro-categorias, #solo-disponibles, #orden").on("change", pintarTienda);
+  // (Estos elementos se crean de nuevo cada vez que se entra a la tienda,
+  // por eso el evento se engancha aquí y no al cargar la página.)
+  $("#filtro-categorias, #solo-disponibles, #orden").on("change", function () {
+    pintarTienda(true);
+  });
 }
 
-function pintarTienda() {
+function pintarTienda(animar) {
   // jQuery: leemos lo que el usuario escogió en los filtros
   // ":checked" busca el radio que está marcado y .val() nos da su valor
   var categoria = $('input[name="categoria"]:checked').val();
@@ -402,65 +543,155 @@ function pintarTienda() {
   });
 
   // 3. Mostrar el resultado en la página (con jQuery)
-  $("#cantidad-resultados").text(lista.length + " producto(s) encontrado(s)");
-  if (lista.length == 0) {
-    $("#lista-productos").html("");
-    $("#sin-resultados").show();
+  function cambiar() {
+    $("#cantidad-resultados").text(lista.length + " producto(s) encontrado(s)");
+    if (lista.length == 0) {
+      $("#lista-productos").html("");
+      $("#sin-resultados").show();
+      return;
+    }
+    $("#sin-resultados").hide();
+    var html = "";
+    for (var j = 0; j < lista.length; j++) {
+      html += tarjetaProducto(lista[j]);
+    }
+    $("#lista-productos").html(html);
+    $("#lista-productos .reveal").addClass("visible");
+  }
+
+  if (!animar) {
+    cambiar();
     return;
   }
-  $("#sin-resultados").hide();
-  var html = "";
-  for (var j = 0; j < lista.length; j++) {
-    html += tarjetaProducto(lista[j]);
-  }
-  $("#lista-productos").html(html);
-  mostrarElementos();
+  // Mismo truco que en el inicio: desaparecer, cambiar y volver a aparecer
+  $("#lista-productos").stop(true, true).fadeOut(150, function () {
+    cambiar();
+    $("#lista-productos").fadeIn(250);
+  });
 }
 
 // ===============================
-// 7. PÁGINA DE PRODUCTO
+// 8. VISTA: PRODUCTO
 // ===============================
-function paginaProducto() {
-  var params = new URLSearchParams(window.location.search);
-  var p = buscarProducto(params.get("id"));
+function vistaProducto(id) {
+  var p = buscarProducto(id);
 
   if (p == null) {
-    $("#detalle").html('<p class="vacio">Producto no encontrado</p>');
+    $("#vista").html('<div class="contenedor"><p class="vacio">Producto no encontrado. <a href="#/tienda">Ir a la tienda</a></p></div>');
     return;
   }
 
   document.title = p.nombre + " - Happy Pets";
   var html = "";
-  html += '<div class="detalle-imagen"><img src="' + p.imagen + '" alt="' + p.nombre + '"></div>';
-  html += '<div class="detalle-info">';
-  html += '  <h1>' + p.nombre + '</h1>';
-  html += '  <p class="detalle-precio">' + formatoPrecio(p.precio) + ' ';
-  if (p.disponible) {
-    html += '<span class="estado ok">Disponible</span>';
-  } else {
-    html += '<span class="estado no">Agotado</span>';
+  html += '<div class="contenedor">';
+  // history.back() es como tocar el botón "atrás" del navegador
+  html += '  <button class="volver" onclick="history.back()">← Volver</button>';
+  html += '  <div class="detalle-grid">';
+  html += '    <div class="detalle-imagen"><img src="' + p.imagen + '" alt="' + p.nombre + '"></div>';
+  html += '    <div class="detalle-info">';
+  html += '      <h1>' + p.nombre + '</h1>';
+  html += '      <p class="detalle-precio">' + formatoPrecio(p.precio) + ' ' + etiquetaEstado(p) + '</p>';
+  html += '      <p class="detalle-texto">' + p.descripcion + '</p>';
+  html += bloqueCompra(p);
+  html += '      <ul class="ventajas">';
+  html += '        <li>✔ Envío a domicilio en Medellín</li>';
+  html += '        <li>✔ Envío gratis en compras desde $150.000</li>';
+  html += '        <li>✔ Pago seguro</li>';
+  html += '      </ul>';
+  html += '    </div>';
+  html += '  </div>';
+
+  // Productos relacionados: otros de la misma categoría (máximo 4)
+  var relacionados = "";
+  var cont = 0;
+  for (var i = 0; i < productos.length; i++) {
+    if (productos[i].categoria == p.categoria && productos[i].id != p.id && cont < 4) {
+      relacionados += tarjetaProducto(productos[i]);
+      cont++;
+    }
   }
-  html += '  </p>';
-  html += '  <p class="detalle-texto">' + p.descripcion + '</p>';
-  if (p.disponible) {
-    html += '  <div class="detalle-compra">';
-    html += '    <div class="cantidad">';
-    html += '      <button id="menos">-</button><span id="cantidad">1</span><button id="mas">+</button>';
-    html += '    </div>';
-    html += '    <button id="agregar-detalle" class="btn btn-naranja" data-id="' + p.id + '">Agregar al carrito</button>';
+  if (relacionados != "") {
+    html += '  <div class="relacionados">';
+    html += '    <h2>También te puede gustar</h2>';
+    html += '    <div class="grid-productos">' + relacionados + '</div>';
     html += '  </div>';
   }
-  html += '  <ul class="ventajas">';
-  html += '    <li>✔ Envío a domicilio en Medellín</li>';
-  html += '    <li>✔ Envío gratis en compras desde $150.000</li>';
-  html += '    <li>✔ Pago seguro</li>';
-  html += '  </ul>';
   html += '</div>';
-  $("#detalle").html(html);
+  $("#vista").html(html);
 }
 
 // ===============================
-// 8. EFECTO AL HACER SCROLL
+// 9. VISTA: CARRITO
+// ===============================
+function vistaCarrito() {
+  $("#vista").html($("#plantilla-carrito").html());
+  pintarPaginaCarrito();
+}
+
+// ===============================
+// 10. NAVEGACIÓN SIN RECARGAR (el "enrutador")
+// ===============================
+// Todo el sitio es UNA sola página: el menú y el pie no cambian, solo <main id="vista">.
+// La vista que toca va en la dirección después del # (ej: index.html#/tienda).
+// Cambiar lo que va después del # NO recarga la página; el navegador solo avisa con
+// el evento "hashchange" (ver el final del archivo) y ahí pintamos la vista.
+// Rutas: #/inicio, #/tienda, #/tienda/snacks, #/producto/5, #/carrito
+// Lee lo que va después del # y lo separa en partes.
+// "#/producto/5" -> { vista: "producto", dato: "5" }
+function leerRuta() {
+  var texto = window.location.hash.replace("#/", "").replace("#", "");
+  var partes = texto.split("/");
+  return { vista: partes[0] || "inicio", dato: partes[1] };
+}
+
+// Se ejecuta al cargar la página y cada vez que cambia el # de la dirección.
+function navegar() {
+  var ruta = leerRuta();
+
+  // Si había algo abierto encima, lo cerramos
+  cerrarVistaRapida();
+  cerrarCarrito();
+  // En celular, el menú desplegable se cierra al elegir una opción
+  // (.slideUp lo recoge hacia arriba; es lo contrario de .slideDown)
+  if ($(window).width() <= 768) {
+    $("#enlaces").slideUp(150);
+  }
+
+  // Si la ruta no existe, mostramos el inicio
+  var vistas = ["inicio", "tienda", "producto", "carrito"];
+  // $.inArray(valor, lista) devuelve la posición del valor en la lista, o -1 si no está
+  if ($.inArray(ruta.vista, vistas) == -1) {
+    ruta.vista = "inicio";
+  }
+
+  marcarMenu(ruta.vista);
+  document.title = "Happy Pets - Todo para tu mejor amigo";
+
+  // EFECTO: la zona central desaparece, se cambia su contenido y vuelve a aparecer.
+  // .stop(true, true) cancela una animación anterior si el usuario navega muy rápido.
+  $("#vista").stop(true, true).fadeOut(150, function () {
+    if (ruta.vista == "inicio") {
+      vistaInicio();
+    } else if (ruta.vista == "tienda") {
+      vistaTienda(ruta.dato);
+    } else if (ruta.vista == "producto") {
+      vistaProducto(ruta.dato);
+    } else if (ruta.vista == "carrito") {
+      vistaCarrito();
+    }
+
+    // El fondo de las páginas internas es gris clarito; el del inicio es blanco
+    $("body").toggleClass("fondo-interno", ruta.vista != "inicio");
+
+    // Volver arriba de la página (sin animación, para que no se vea el salto)
+    $(window).scrollTop(0);
+    $("#vista").fadeIn(250);
+    mostrarElementos();
+  });
+}
+
+// ===============================
+// 11. EFECTO AL HACER SCROLL
 // ===============================
 // Las tarjetas empiezan invisibles (clase "reveal" en el CSS, opacity: 0).
 // Cuando el usuario baja y llegan a la pantalla, les agregamos la clase "visible"
@@ -482,7 +713,7 @@ function mostrarElementos() {
 }
 
 // ===============================
-// 9. INICIO: se ejecuta cuando la página termina de cargar
+// 12. INICIO: se ejecuta cuando la página termina de cargar
 // ===============================
 // $(document).ready(...) espera a que todo el HTML esté cargado antes de ejecutar el código.
 // Si no lo usamos, JavaScript podría buscar elementos que todavía no existen.
@@ -491,23 +722,33 @@ $(document).ready(function () {
   pintarMenu();
   pintarPie();
   pintarCarritoLateral();
+  pintarModal();
   refrescarCarrito();
 
-  // Según la página, se ejecuta su función
-  var pagina = $("body").data("pagina");
-  if (pagina == "inicio") {
-    paginaInicio();
-  } else if (pagina == "tienda") {
-    paginaTienda();
-  } else if (pagina == "producto") {
-    paginaProducto();
-  } else if (pagina == "carrito") {
-    pintarPaginaCarrito();
-  }
+  // Pintamos la vista que diga la dirección (si no hay #, el inicio)
+  navegar();
+
+  // "hashchange" ocurre cada vez que cambia lo que va después del # en la dirección:
+  // al tocar un enlace href="#/tienda", o al usar los botones atrás/adelante del navegador.
+  $(window).on("hashchange", navegar);
 
   // ----- Eventos -----
+  // IMPORTANTE: casi todo lo de la zona central se crea con JavaScript DESPUÉS de cargar
+  // la página (y se vuelve a crear en cada navegación), así que $(".btn-agregar").on(...)
+  // NO funcionaría. Con $(document).on("click", ".btn-agregar", ...) jQuery escucha los
+  // clicks en toda la página y revisa si lo que se tocó es un ".btn-agregar".
+  // Así sirve para elementos creados después.
+
+  // Si tocan un enlace a la vista donde ya están (ej: "Ver carrito" estando en el carrito),
+  // el # no cambia y "hashchange" no ocurre. En ese caso solo cerramos lo que esté abierto.
+  $(document).on("click", 'a[href^="#/"]:not(.abrir-rapido)', function () {
+    if ($(this).attr("href") == window.location.hash) {
+      cerrarCarrito();
+      cerrarVistaRapida();
+    }
+  });
+
   // Abrir y cerrar carrito lateral
-  // .on("click", funcion): cuando hagan click en el botón, se ejecuta la función
   $("#btn-carrito").on("click", abrirCarrito);
   $("#cerrar-carrito, #fondo-oscuro").on("click", cerrarCarrito);
 
@@ -517,16 +758,61 @@ $(document).ready(function () {
     $("#enlaces").slideToggle(200);
   });
 
-  // IMPORTANTE: los botones de producto los creamos con JavaScript después de cargar la página,
-  // así que $(".btn-agregar").on(...) NO funcionaría (todavía no existen).
-  // Con $(document).on("click", ".btn-agregar", ...) jQuery escucha los clicks en toda la página
-  // y revisa si lo que se tocó es un ".btn-agregar". Así sirve para botones creados después.
+  // Vista rápida: al tocar la imagen o el nombre de un producto
+  $(document).on("click", ".abrir-rapido", function (evento) {
+    // .preventDefault() evita que el enlace haga lo normal (ir a #/producto/5).
+    // En vez de eso, abrimos la ventana encima sin salir de donde estamos.
+    evento.preventDefault();
+    abrirVistaRapida($(this).data("id"));
+  });
+
+  // Cerrar la vista rápida: con la X, tocando el fondo oscuro o con la tecla Esc
+  $(document).on("click", "#cerrar-modal", cerrarVistaRapida);
+  $(document).on("click", "#modal", function (evento) {
+    // evento.target es lo que se tocó exactamente. Si es el fondo (#modal) y no
+    // algo dentro del recuadro blanco, cerramos.
+    if (evento.target == this) {
+      cerrarVistaRapida();
+    }
+  });
+  $(document).on("keydown", function (evento) {
+    if (evento.key == "Escape") {
+      cerrarVistaRapida();
+      cerrarCarrito();
+    }
+  });
+
+  // Inicio: las categorías filtran la grilla de productos ahí mismo
+  $(document).on("click", ".categoria", function () {
+    var categoria = $(this).data("categoria");
+    // Si toca la que ya estaba elegida, se vuelve a los destacados.
+    // .hasClass("activa") responde true si el botón tiene esa clase.
+    if ($(this).hasClass("activa")) {
+      categoria = "";
+    }
+    pintarProductosInicio(categoria, true);
+
+    // .animate({ scrollTop: ... }) mueve la página suavemente hasta los productos.
+    // Se restan 80 px por el menú, que está pegado arriba.
+    // Se anima "html, body" (los dos) porque según el navegador el scroll lo lleva uno u otro.
+    $("html, body").animate({ scrollTop: $("#seccion-productos").offset().top - 80 }, 500);
+  });
+
+  // Botones con data-bajar="#algo": bajan con scroll animado hasta ese elemento
+  $(document).on("click", "[data-bajar]", function () {
+    var destino = $(this).data("bajar");
+    $("html, body").animate({ scrollTop: $(destino).offset().top - 80 }, 600);
+  });
+
+  // Tarjetas: botón 🛒 agrega 1 unidad
   $(document).on("click", ".btn-agregar", function () {
     // $(this) es el botón que se tocó.
     // .data("id") lee su atributo data-id="5" (así sabemos qué producto es)
     agregarAlCarrito($(this).data("id"), 1);
     abrirCarrito();
   });
+
+  // Carrito: más, menos y eliminar
   $(document).on("click", ".btn-mas", function () {
     cambiarCantidad($(this).data("id"), 1);
   });
@@ -537,30 +823,44 @@ $(document).ready(function () {
     eliminarDelCarrito($(this).data("id"));
   });
 
-  // Página de producto: cantidad y botón agregar
-  // Aquí también usamos $(document).on porque estos botones se crean con JS.
-  // $("#cantidad").text() lee el número que se ve en pantalla (viene como texto),
-  // Number(...) lo convierte a número y le sumamos 1; luego .text(...) lo vuelve a escribir.
-  $(document).on("click", "#mas", function () {
-    $("#cantidad").text(Number($("#cantidad").text()) + 1);
+  // Bloque de compra (vista rápida y detalle): cantidad y botón agregar.
+  // Como puede haber dos bloques a la vez, cada botón busca SU propio número:
+  // .closest(".detalle-compra") sube hasta el bloque donde está el botón y
+  // .find(".cant-numero") busca el número dentro de ESE bloque.
+  $(document).on("click", ".cant-mas", function () {
+    var numero = $(this).closest(".detalle-compra").find(".cant-numero");
+    numero.text(Number(numero.text()) + 1);
   });
-  $(document).on("click", "#menos", function () {
-    var c = Number($("#cantidad").text());
+  $(document).on("click", ".cant-menos", function () {
+    var numero = $(this).closest(".detalle-compra").find(".cant-numero");
+    var c = Number(numero.text());
     if (c > 1) {
-      $("#cantidad").text(c - 1);
+      numero.text(c - 1);
     }
   });
-  $(document).on("click", "#agregar-detalle", function () {
-    agregarAlCarrito($(this).data("id"), Number($("#cantidad").text()));
+  $(document).on("click", ".btn-agregar-detalle", function () {
+    var cantidad = Number($(this).closest(".detalle-compra").find(".cant-numero").text());
+    agregarAlCarrito($(this).data("id"), cantidad);
+    cerrarVistaRapida();
     abrirCarrito();
   });
 
   // Finalizar compra (simulado, no hay pasarela de pago)
-  $("#finalizar").on("click", function () {
-    alert("¡Gracias por tu compra! (simulación)");
+  $(document).on("click", "#finalizar", function () {
     carrito = [];
     guardarCarrito();
     refrescarCarrito();
+    // En vez de un alert, cambiamos el contenido de la vista por un mensaje
+    var html = "";
+    html += '<div class="gracias">';
+    html += '  <span>🎉</span>';
+    html += '  <h2>¡Gracias por tu compra!</h2>';
+    html += '  <p>Esto es una simulación: no se hizo ningún cobro.</p>';
+    html += '  <a href="#/inicio" class="btn btn-azul">Volver al inicio</a>';
+    html += '</div>';
+    // Encadenado: se oculta, se le cambia el contenido mientras está oculto,
+    // y aparece ya con el mensaje nuevo (así no se ve el cambio de golpe).
+    $("#pagina-carrito").hide().html(html).fadeIn(400);
   });
 
   // Si se agranda la ventana, el menú vuelve a su estado normal
@@ -574,7 +874,5 @@ $(document).ready(function () {
 
   // Efecto de aparición al hacer scroll
   // "scroll" ocurre cada vez que el usuario sube o baja la página.
-  // Se llama también una vez al inicio para mostrar lo que ya se ve sin hacer scroll.
   $(window).on("scroll", mostrarElementos);
-  mostrarElementos();
 });
