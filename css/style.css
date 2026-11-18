@@ -266,6 +266,8 @@ a {
   gap: 20px;
 }
 
+/* Las categorías son botones que filtran los productos del inicio.
+   font y color "inherit" quitan el estilo que el navegador les pone a los botones. */
 .categoria {
   background: #f9fafb;
   border: 1px solid #eee;
@@ -273,6 +275,10 @@ a {
   padding: 30px 10px;
   text-align: center;
   transition: 0.3s;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  width: 100%;
 }
 
 .categoria:hover {
@@ -549,7 +555,7 @@ a {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 50px;
-  padding: 40px 20px;
+  padding: 20px 20px 40px;
 }
 
 .detalle-imagen {
@@ -881,14 +887,7 @@ body.sin-scroll {
   overflow: hidden;
 }
 
-/* ===== Categorías del inicio (ahora son botones que filtran) ===== */
-button.categoria {
-  font: inherit;
-  color: inherit;
-  cursor: pointer;
-  width: 100%;
-}
-
+/* ===== Categoría elegida en el inicio ===== */
 .categoria.activa {
   background: #60b5ff;
   color: white;
@@ -1003,10 +1002,6 @@ button.categoria {
   font-weight: 600;
   cursor: pointer;
   margin-top: 24px;
-}
-
-.detalle-grid {
-  padding-top: 20px;
 }
 
 .relacionados {
