@@ -170,6 +170,53 @@
     </div>
   </template>
 
+  <!-- Vista: CONTACTO -->
+  <template id="plantilla-contacto">
+    <div class="encabezado">
+      <div class="contenedor">
+        <h1>Contáctanos</h1>
+        <p>¿Dudas sobre la dieta BARF o tu pedido? Escríbenos</p>
+      </div>
+    </div>
+
+    <div class="contenedor contacto-grid">
+      <!-- Datos de contacto -->
+      <div class="contacto-datos">
+        <a href="https://wa.me/573242950161" target="_blank" class="contacto-item">
+          <span class="contacto-icono">💬</span>
+          <div><h3>WhatsApp</h3><p>+57 324-295-0161</p></div>
+        </a>
+        <a href="mailto:happypets2021@outlook.es" class="contacto-item">
+          <span class="contacto-icono">✉️</span>
+          <div><h3>Correo</h3><p>happypets2021@outlook.es</p></div>
+        </a>
+        <div class="contacto-item">
+          <span class="contacto-icono">📍</span>
+          <div><h3>Ubicación</h3><p>Medellín, Colombia · Envíos a domicilio</p></div>
+        </div>
+      </div>
+
+      <!-- Formulario (simulado: no envía nada, jQuery lo valida y muestra un mensaje) -->
+      <form id="form-contacto" class="formulario" novalidate>
+        <h2>Envíanos un mensaje</h2>
+
+        <label for="contacto-nombre">Nombre</label>
+        <input type="text" id="contacto-nombre" placeholder="Tu nombre">
+        <span class="error-texto"></span>
+
+        <label for="contacto-correo">Correo</label>
+        <input type="email" id="contacto-correo" placeholder="tucorreo@ejemplo.com">
+        <span class="error-texto"></span>
+
+        <label for="contacto-mensaje">Mensaje</label>
+        <textarea id="contacto-mensaje" rows="5" placeholder="¿En qué te podemos ayudar?"></textarea>
+        <span class="error-texto"></span>
+
+        <button type="submit" class="btn btn-naranja">Enviar mensaje</button>
+      </form>
+    </div>
+  </template>
+
   <!-- La vista de PRODUCTO no tiene plantilla: se arma entera en JavaScript
        porque todo su contenido depende del producto (ver vistaProducto()) -->
 

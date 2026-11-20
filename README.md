@@ -12,6 +12,7 @@ La vista se elige con lo que va después del `#` en la dirección:
 - `#/tienda` (o `#/tienda/snacks`): tienda con filtros
 - `#/producto/5`: detalle de un producto
 - `#/carrito`: carrito de compras
+- `#/contacto`: datos de contacto y formulario (validado con jQuery, simulado)
 
 Los botones atrás/adelante del navegador funcionan, porque cada vista tiene su dirección.
 

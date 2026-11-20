@@ -114,6 +114,7 @@ function pintarMenu() {
   html += '    <a href="#/inicio" data-vista="inicio">Inicio</a>';
   html += '    <a href="#/tienda" data-vista="tienda">Tienda</a>';
   html += '    <a href="#/carrito" data-vista="carrito">Carrito</a>';
+  html += '    <a href="#/contacto" data-vista="contacto">Contacto</a>';
   html += '  </nav>';
   html += '  <div class="menu-derecha">';
   html += '    <button id="btn-carrito" class="btn-icono">🛒<span id="contador" class="contador">0</span></button>';
@@ -135,6 +136,7 @@ function pintarPie() {
   html += '    <h4>Navegación</h4>';
   html += '    <p><a href="#/tienda">Tienda</a></p>';
   html += '    <p><a href="#/carrito">Carrito</a></p>';
+  html += '    <p><a href="#/contacto">Contacto</a></p>';
   html += '  </div>';
   html += '  <div>';
   html += '    <h4>Contacto</h4>';
@@ -629,13 +631,59 @@ function vistaCarrito() {
 }
 
 // ===============================
+// 9.1 VISTA: CONTACTO
+// ===============================
+function vistaContacto() {
+  $("#vista").html($("#plantilla-contacto").html());
+}
+
+// Revisa un campo del formulario. Si "valido" es false, lo marca en rojo y
+// escribe el error en el <span class="error-texto"> que va justo después del campo.
+// .next() devuelve el elemento que está inmediatamente después (el hermano siguiente).
+function marcarCampo(campo, valido, mensaje) {
+  campo.toggleClass("campo-error", !valido);
+  campo.next(".error-texto").text(valido ? "" : mensaje);
+  return valido;
+}
+
+function enviarContacto() {
+  var nombre = $("#contacto-nombre");
+  var correo = $("#contacto-correo");
+  var mensaje = $("#contacto-mensaje");
+
+  // Patrón algo@algo.algo: revisa que el correo tenga esa forma (no que exista)
+  var formatoCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  // Se revisan los tres por separado para marcar TODOS los errores a la vez.
+  // $.trim() quita los espacios del principio y del final, para que "   " no cuente como texto.
+  var okNombre = marcarCampo(nombre, $.trim(nombre.val()) != "", "Escribe tu nombre");
+  var okCorreo = marcarCampo(correo, formatoCorreo.test($.trim(correo.val())), "Escribe un correo válido");
+  var okMensaje = marcarCampo(mensaje, $.trim(mensaje.val()).length >= 10, "El mensaje debe tener al menos 10 letras");
+
+  if (!okNombre || !okCorreo || !okMensaje) {
+    return;
+  }
+
+  // Simulación: no se envía a ningún lado. Cambiamos el formulario por un mensaje.
+  var primerNombre = $.trim(nombre.val()).split(" ")[0];
+  var html = "";
+  html += '<div class="gracias">';
+  html += '  <span>📨</span>';
+  html += '  <h2>¡Gracias, ' + primerNombre + '!</h2>';
+  html += '  <p>Recibimos tu mensaje (simulación: no se envió a ningún lado).</p>';
+  html += '  <a href="#/tienda" class="btn btn-azul">Ir a la tienda</a>';
+  html += '</div>';
+  $("#form-contacto").hide().html(html).fadeIn(400);
+}
+
+// ===============================
 // 10. NAVEGACIÓN SIN RECARGAR (el "enrutador")
 // ===============================
 // Todo el sitio es UNA sola página: el menú y el pie no cambian, solo <main id="vista">.
 // La vista que toca va en la dirección después del # (ej: index.html#/tienda).
 // Cambiar lo que va después del # NO recarga la página; el navegador solo avisa con
 // el evento "hashchange" (ver el final del archivo) y ahí pintamos la vista.
-// Rutas: #/inicio, #/tienda, #/tienda/snacks, #/producto/5, #/carrito
+// Rutas: #/inicio, #/tienda, #/tienda/snacks, #/producto/5, #/carrito, #/contacto
 // Lee lo que va después del # y lo separa en partes.
 // "#/producto/5" -> { vista: "producto", dato: "5" }
 function leerRuta() {
@@ -658,7 +706,7 @@ function navegar() {
   }
 
   // Si la ruta no existe, mostramos el inicio
-  var vistas = ["inicio", "tienda", "producto", "carrito"];
+  var vistas = ["inicio", "tienda", "producto", "carrito", "contacto"];
   // $.inArray(valor, lista) devuelve la posición del valor en la lista, o -1 si no está
   if ($.inArray(ruta.vista, vistas) == -1) {
     ruta.vista = "inicio";
@@ -678,6 +726,8 @@ function navegar() {
       vistaProducto(ruta.dato);
     } else if (ruta.vista == "carrito") {
       vistaCarrito();
+    } else if (ruta.vista == "contacto") {
+      vistaContacto();
     }
 
     // El fondo de las páginas internas es gris clarito; el del inicio es blanco
@@ -843,6 +893,19 @@ $(document).ready(function () {
     agregarAlCarrito($(this).data("id"), cantidad);
     cerrarVistaRapida();
     abrirCarrito();
+  });
+
+  // Formulario de contacto
+  // "submit" ocurre al tocar "Enviar" o al dar Enter. evento.preventDefault() evita
+  // que el navegador recargue la página (que es lo que hace un formulario por defecto).
+  $(document).on("submit", "#form-contacto", function (evento) {
+    evento.preventDefault();
+    enviarContacto();
+  });
+  // Apenas el usuario escribe en un campo marcado en rojo, se le quita el error
+  // ("input" ocurre con cada letra que se escribe o borra)
+  $(document).on("input", ".formulario input, .formulario textarea", function () {
+    marcarCampo($(this), true, "");
   });
 
   // Finalizar compra (simulado, no hay pasarela de pago)

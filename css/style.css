@@ -1035,6 +1035,118 @@ body.sin-scroll {
   margin-bottom: 25px;
 }
 
+/* ===== Contacto ===== */
+.contacto-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 30px;
+  padding-top: 30px;
+  padding-bottom: 60px;
+}
+
+.contacto-datos {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.contacto-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: 0.3s;
+}
+
+a.contacto-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 30px -8px rgba(96, 181, 255, 0.3);
+}
+
+.contacto-icono {
+  font-size: 30px;
+  background: #ffecdb;
+  border-radius: 12px;
+  width: 56px;
+  height: 56px;
+  line-height: 56px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.contacto-item h3 {
+  font-size: 16px;
+  color: #60b5ff;
+}
+
+.contacto-item p {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.formulario {
+  background: white;
+  border-radius: 12px;
+  padding: 28px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.formulario h2 {
+  color: #60b5ff;
+  margin-bottom: 15px;
+}
+
+.formulario label {
+  display: block;
+  font-weight: 600;
+  font-size: 14px;
+  margin-top: 12px;
+  margin-bottom: 6px;
+}
+
+.formulario input,
+.formulario textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.formulario input:focus,
+.formulario textarea:focus {
+  outline: none;
+  border-color: #60b5ff;
+}
+
+/* La clase la pone jQuery cuando el campo no es válido */
+.formulario .campo-error {
+  border-color: #d63031;
+}
+
+.error-texto {
+  display: block;
+  color: #d63031;
+  font-size: 13px;
+  min-height: 18px;
+}
+
+.formulario .btn {
+  width: 100%;
+  margin-top: 15px;
+}
+
+/* El mensaje de gracias dentro del formulario no necesita su propia caja */
+.formulario .gracias {
+  margin: 0;
+  padding: 30px 0;
+}
+
 /* =========================================
    RESPONSIVE (media queries)
    ========================================= */
@@ -1110,7 +1222,8 @@ body.sin-scroll {
   .tienda-grid,
   .detalle-grid,
   .carrito-grid,
-  .modal-grid {
+  .modal-grid,
+  .contacto-grid {
     grid-template-columns: 1fr;
   }
 
